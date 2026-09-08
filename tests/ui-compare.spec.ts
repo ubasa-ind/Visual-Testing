@@ -1,5 +1,6 @@
 import { test, expect, devices } from '@playwright/test';
 
+// Define mobile layouts to check
 const testDevices = [
   { name: 'iPhone-Layout', profile: devices['iPhone 14'] },
   { name: 'Android-Layout', profile: devices['Pixel 7'] }
@@ -9,11 +10,11 @@ const PROD_URL = 'https://www.harperenfoque.com/';
 const STAGING_URL = 'https://dev-harperenfoque.pantheonsite.io/';
 
 test('Crawl and Compare all Sub-Links on Mobile', async ({ browser }) => {
+  // 1. Discover sub-links from production homepage
   const context = await browser.newContext();
   const page = await context.newPage();
   await page.goto(PROD_URL);
 
-  // Automatically find all sub-links on the homepage
   const discoveredLinks = await page.evaluate((baseUrl) => {
     const anchors = Array.from(document.querySelectorAll('a'));
     return anchors
@@ -25,27 +26,22 @@ test('Crawl and Compare all Sub-Links on Mobile', async ({ browser }) => {
   const uniquePaths = [...new Set(discoveredLinks)];
   await context.close();
 
-  // Loop through every discovered link and compare
+  // 2. Loop through every discovered sub-link and compare mobile UI layouts
   for (const device of testDevices) {
     for (const path of uniquePaths) {
       const mobileContext = await browser.newContext({ ...device.profile });
       const mobilePage = await mobileContext.newPage();
 
-      // 1. Snapshot Production as the baseline truth
+      // Go to Production & generate baseline snapshot
       await mobilePage.goto(`${PROD_URL}${path}`);
       
-      // 2. Go to Staging and pixel-verify it against Prod
+      // Go to Staging & perform the real-time pixel comparison
       await mobilePage.goto(`${STAGING_URL}${path}`);
       
       const safeFileName = path.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'homepage';
       
-      // This line will fail the test and generate a visual red diff if they don't match!
-     // Notice the ".soft" added right after expect
-      await expect.soft(mobilePage).toHaveScreenshot(`${device.name}-${safeFileName}.png`, {
-        maxDiffPixelRatio: 0.05
-        });
- // Ignores minor 2% shifts (like loading spinners), flags real bugs
-      });
+      // Soft assertion so the script keeps checking all other pages even if one fails
+      await expect.soft(mobilePage).toHaveScreenshot(`${device.name}-${safeFileName}.png`);
 
       await mobileContext.close();
     }

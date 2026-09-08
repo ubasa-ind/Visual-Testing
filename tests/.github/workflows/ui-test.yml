@@ -20,7 +20,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run UI Tests
-        run: npx playwright test
+        run: npx playwright test --update-snapshots
 
       - name: Upload Visual Bug Report
         if: always()

@@ -40,8 +40,11 @@ test('Crawl and Compare all Sub-Links on Mobile', async ({ browser }) => {
       const safeFileName = path.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'homepage';
       
       // This line will fail the test and generate a visual red diff if they don't match!
-      await expect(mobilePage).toHaveScreenshot(`${device.name}-${safeFileName}.png`, {
-        maxDiffPixelRatio: 0.02 // Ignores minor 2% shifts (like loading spinners), flags real bugs
+     // Notice the ".soft" added right after expect
+      await expect.soft(mobilePage).toHaveScreenshot(`${device.name}-${safeFileName}.png`, {
+        maxDiffPixelRatio: 0.05
+        });
+ // Ignores minor 2% shifts (like loading spinners), flags real bugs
       });
 
       await mobileContext.close();

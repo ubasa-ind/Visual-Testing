@@ -5,8 +5,8 @@ const testDevices = [
   { name: 'Android-Layout', profile: devices['Pixel 7'] }
 ];
 
-const PROD_URL = 'https://your-production-site.com';
-const STAGING_URL = 'https://your-staging-site.com';
+const PROD_URL = 'https://www.harperenfoque.com/';
+const STAGING_URL = 'https://dev-harperenfoque.pantheonsite.io/';
 
 test('Crawl and Compare all Sub-Links on Mobile', async ({ browser }) => {
   const context = await browser.newContext();
